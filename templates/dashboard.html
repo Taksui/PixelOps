@@ -1,61 +1,62 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>API Chaos Dashboard</title>
-    <style>
-        body {
-            font-family: Arial;
-            background: #0f172a;
-            color: #e2e8f0;
-            padding: 20px;
-        }
-        .card {
-            background: #1e293b;
-            padding: 15px;
-            margin: 10px;
-            border-radius: 10px;
-            display: inline-block;
-            min-width: 200px;
-        }
-        h1 {
-            color: #38bdf8;
-        }
-        pre {
-            background: #020617;
-            padding: 10px;
-            border-radius: 8px;
-            overflow-x: auto;
-        }
-    </style>
+    <title>API Monitoring Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body>
+<body style="font-family: Arial; text-align: center;">
 
-<h1>⚡ API Chaos Dashboard</h1>
+    <h1>🚀 API Monitoring Dashboard</h1>
 
-<div id="metrics"></div>
+    <p>Total Requests: <span id="requests">0</span></p>
+    <p>Failures: <span id="failures">0</span></p>
+    <p>Success Rate: <span id="success">0</span></p>
 
-<h2>Recent Logs</h2>
-<pre id="logs"></pre>
+    <canvas id="chart" width="400" height="200"></canvas>
 
-<script>
-async function loadData() {
-    const metrics = await fetch("/metrics").then(r => r.json());
-    const replay = await fetch("/replay").then(r => r.json());
+    <script>
+        let chart;
 
-    document.getElementById("metrics").innerHTML = `
-        <div class="card">Requests: ${metrics.total_requests}</div>
-        <div class="card">Failures: ${metrics.failures}</div>
-        <div class="card">Success Rate: ${(metrics.success_rate * 100).toFixed(2)}%</div>
-        <div class="card">Failure Rate: ${metrics.failure_rate}</div>
-    `;
+        async function fetchMetrics() {
+            const res = await fetch('/metrics');
+            const data = await res.json();
 
-    document.getElementById("logs").textContent = JSON.stringify(replay.recent_logs, null, 2);
-}
+            document.getElementById('requests').innerText = data.total_requests;
+            document.getElementById('failures').innerText = data.failures;
+            document.getElementById('success').innerText = data.success_rate;
 
-// refresh every 2 seconds
-setInterval(loadData, 2000);
-loadData();
-</script>
+            updateChart(data);
+        }
+
+        function updateChart(data) {
+            const chartData = {
+                labels: ["Success", "Failures"],
+                datasets: [{
+                    label: "API Health",
+                    data: [
+                        data.total_requests - data.failures,
+                        data.failures
+                    ]
+                }]
+            };
+
+            if (chart) {
+                chart.data = chartData;
+                chart.update();
+            } else {
+                const ctx = document.getElementById('chart').getContext('2d');
+                chart = new Chart(ctx, {
+                    type: 'bar',
+                    data: chartData
+                });
+            }
+        }
+
+        // 🔄 Auto refresh every 2 seconds
+        setInterval(fetchMetrics, 2000);
+
+        fetchMetrics();
+    </script>
 
 </body>
 </html>

@@ -1,6 +1,5 @@
 from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse
-from fastapi.templating import Jinja2Templates
+from fastapi.responses import FileResponse
 import random
 import time
 import json
@@ -19,21 +18,22 @@ request_count = 0
 failure_count = 0
 user_requests = {}
 
-LOG_FILE = "data/logs.json"
-
-templates = Jinja2Templates(directory="templates")
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+LOG_FILE = os.path.join(BASE_DIR, "data", "logs.json")
 
 # Ensure data folder exists
-os.makedirs("data", exist_ok=True)
+os.makedirs(os.path.join(BASE_DIR, "data"), exist_ok=True)
 
 # ------------------ RETRY LOGIC ------------------
-def retry(func, retries=3, delay=1):
+def retry(func, retries=3, base_delay=0.5):
     for attempt in range(retries):
         try:
             return func()
         except Exception:
             if attempt == retries - 1:
                 raise
+            # 🔥 Exponential backoff
+            delay = base_delay * (2 ** attempt)
             time.sleep(delay)
 
 # ------------------ LOGGER ------------------
@@ -138,8 +138,10 @@ def replay():
         "recent_logs": logs[-5:]
     }
 
-# ------------------ DASHBOARD (ROOT + ALIAS) ------------------
-@app.get("/", response_class=HTMLResponse)
-@app.get("/dashboard", response_class=HTMLResponse)
-def dashboard(request: Request):
-    return templates.TemplateResponse("dashboard.html", {"request": request})
+# ------------------ DASHBOARD ------------------
+@app.get("/")
+@app.get("/dashboard")
+def dashboard():
+    file_path = os.path.join(os.getcwd(), "templates", "dashboard.html")
+    if not os.path.exists(file_path):
+        return {"error": f"File not found: {file_path}"}
