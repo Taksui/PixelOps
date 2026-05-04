@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Chaos Dashboard</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: #0f172a;
+            color: #e2e8f0;
+            padding: 20px;
+        }
+        .card {
+            background: #1e293b;
+            padding: 15px;
+            margin: 10px;
+            border-radius: 10px;
+            display: inline-block;
+            min-width: 200px;
+        }
+        h1 {
+            color: #38bdf8;
+        }
+        pre {
+            background: #020617;
+            padding: 10px;
+            border-radius: 8px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+
+<h1>⚡ API Chaos Dashboard</h1>
+
+<div id="metrics"></div>
+
+<h2>Recent Logs</h2>
+<pre id="logs"></pre>
+
+<script>
+async function loadData() {
+    const metrics = await fetch("/metrics").then(r => r.json());
+    const replay = await fetch("/replay").then(r => r.json());
+
+    document.getElementById("metrics").innerHTML = `
+        <div class="card">Requests: ${metrics.total_requests}</div>
+        <div class="card">Failures: ${metrics.failures}</div>
+        <div class="card">Success Rate: ${(metrics.success_rate * 100).toFixed(2)}%</div>
+        <div class="card">Failure Rate: ${metrics.failure_rate}</div>
+    `;
+
+    document.getElementById("logs").textContent = JSON.stringify(replay.recent_logs, null, 2);
+}
+
+// refresh every 2 seconds
+setInterval(loadData, 2000);
+loadData();
+</script>
+
+</body>
+</html>
