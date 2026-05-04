@@ -143,5 +143,8 @@ def replay():
 @app.get("/dashboard")
 def dashboard():
     file_path = os.path.join(os.getcwd(), "templates", "dashboard.html")
+
     if not os.path.exists(file_path):
         return {"error": f"File not found: {file_path}"}
+
+    return FileResponse(file_path)
