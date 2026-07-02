@@ -1,122 +1,400 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
-    <title>API Monitoring Dashboard</title>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<meta charset="UTF-8">
 
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<title>PixelOps</title>
 
-    <style>
-        body {
-            background-color: #1a1a1a;
-            color: #f8f8f8;
-            font-family: 'Press Start 2P', cursive;
-            margin: 0;
-            padding: 20px;
-        }
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-        .container {
-            border: 4px solid #ffffff;
-            padding: 20px;
-            background-color: #2b2b2b;
-        }
+<link
+href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
+rel="stylesheet">
 
-        h1 {
-            color: #ff3c38;
-            text-shadow: 2px 2px #000;
-        }
+<link
+rel="stylesheet"
+href="/static/css/dashboard.css">
 
-        .card {
-            border: 3px solid #fff;
-            padding: 15px;
-            margin: 15px 0;
-            background: #3a3a3a;
-        }
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-        button {
-            font-family: inherit;
-            background: #ff3c38;
-            color: white;
-            border: 3px solid white;
-            padding: 10px;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background: #cc2f2c;
-        }
-    </style>
 </head>
 
 <body>
 
-<div class="container">
-    <h1>API MONITOR v1</h1>
-    <p>SYSTEM STATUS: ONLINE</p>
+<div class="dashboard">
 
-    <div class="card">
-        <p>Requests: <span id="requests">0</span></p>
-        <p>Failures: <span id="failures">0</span></p>
-        <p>Success Rate: <span id="success">0</span></p>
-    </div>
+<!-- ================================================= -->
+<!-- Sidebar -->
+<!-- ================================================= -->
 
-    <div class="card">
-        <button onclick="fetchData()">SEND REQUEST</button>
-    </div>
+<aside class="sidebar">
 
-    <div class="card">
-        <canvas id="chart" width="400" height="200"></canvas>
-    </div>
+<h1>PIXELOPS</h1>
+
+<nav>
+
+<button>🏠 Dashboard</button>
+<button>⚔ Metrics</button>
+<button>🔥 Chaos</button>
+<button>📈 Charts</button>
+<button>📜 Logs</button>
+<button>⚙ Settings</button>
+
+</nav>
+
+</aside>
+
+<!-- ================================================= -->
+<!-- Main -->
+<!-- ================================================= -->
+
+<main class="content">
+
+<header class="header">
+
+<div>
+
+<h2>API CHAOS SIMULATOR</h2>
+
+<p>
+
+Observability • Chaos Engineering • Backend Resilience
+
+</p>
+
 </div>
 
-<script>
-let chart;
+<div class="status">
 
-async function fetchMetrics() {
-    const res = await fetch('/metrics');
-    const data = await res.json();
+ONLINE
 
-    document.getElementById('requests').innerText = data.total_requests;
-    document.getElementById('failures').innerText = data.failures;
-    document.getElementById('success').innerText = data.success_rate;
+</div>
 
-    updateChart(data);
-}
+</header>
 
-function updateChart(data) {
-    const chartData = {
-        labels: ["Success", "Failures"],
-        datasets: [{
-            label: "API Health",
-            data: [
-                data.total_requests - data.failures,
-                data.failures
-            ]
-        }]
-    };
+<!-- ================================================= -->
+<!-- Metric Cards -->
+<!-- ================================================= -->
 
-    if (chart) {
-        chart.data = chartData;
-        chart.update();
-    } else {
-        const ctx = document.getElementById('chart').getContext('2d');
-        chart = new Chart(ctx, {
-            type: 'bar',
-            data: chartData
-        });
-    }
-}
+<section class="metrics">
 
-async function fetchData() {
-    await fetch('/data');
-    fetchMetrics();
-}
+<div class="card">
 
-// Auto refresh
-setInterval(fetchMetrics, 2000);
-fetchMetrics();
-</script>
+<h3>⚔ REQUESTS</h3>
+
+<p id="request-count">0</p>
+
+</div>
+
+<div class="card">
+
+<h3>🟢 SUCCESS</h3>
+
+<p id="success-rate">0%</p>
+
+</div>
+
+<div class="card">
+
+<h3>💀 FAILURES</h3>
+
+<p id="failure-count">0</p>
+
+</div>
+
+<div class="card">
+
+<h3>⚡ LATENCY</h3>
+
+<p id="latency">0 ms</p>
+
+</div>
+
+</section>
+
+<!-- ================================================= -->
+<!-- Charts -->
+<!-- ================================================= -->
+
+<section class="charts">
+
+<div class="panel">
+
+<h3>Requests / sec</h3>
+
+<canvas id="requestChart"></canvas>
+
+</div>
+
+<div class="panel">
+
+<h3>Latency</h3>
+
+<canvas id="latencyChart"></canvas>
+
+</div>
+
+</section>
+
+<!-- ================================================= -->
+<!-- Traffic Controls -->
+<!-- ================================================= -->
+
+<section class="controls">
+
+<h3>Traffic Generator</h3>
+
+<div class="traffic-buttons">
+
+<button id="sendOne">
+
+Send 1
+
+</button>
+
+<button id="sendTen">
+
+Send 10
+
+</button>
+
+<button id="sendHundred">
+
+Send 100
+
+</button>
+
+<button id="chaosMode">
+
+CHAOS x500
+
+</button>
+
+<button id="resetSim">
+
+RESET
+
+</button>
+
+</div>
+
+<hr>
+
+<label>
+
+Traffic Speed
+
+</label>
+
+<input
+
+id="trafficRate"
+
+type="range"
+
+min="1"
+
+max="100"
+
+value="10">
+
+<p id="trafficValue">
+
+10 req/sec
+
+</p>
+
+<div class="traffic-buttons">
+
+<button id="startTraffic">
+
+▶ START LOAD
+
+</button>
+
+<button id="stopTraffic">
+
+■ STOP LOAD
+
+</button>
+
+</div>
+
+<p id="trafficStatus">
+
+🔴 Idle
+
+</p>
+
+</section>
+
+<!-- ================================================= -->
+<!-- Bottom -->
+<!-- ================================================= -->
+
+<section class="bottom">
+
+<!-- ===================== -->
+<!-- Logs -->
+<!-- ===================== -->
+
+<div class="panel logs">
+
+<h3>System Terminal</h3>
+
+<div id="logs">
+
+Waiting for traffic...
+
+</div>
+
+</div>
+
+<!-- ===================== -->
+<!-- Boss -->
+<!-- ===================== -->
+
+<div class="panel">
+
+<h3>Chaos Boss</h3>
+
+<div class="dragon">
+
+🐉
+
+</div>
+
+<div class="boss-health">
+
+<div id="boss-hp"></div>
+
+</div>
+
+<p id="boss-status">
+
+System Stable
+
+</p>
+
+</div>
+
+<!-- ===================== -->
+<!-- Chaos Controls -->
+<!-- ===================== -->
+
+<div class="panel chaos-panel">
+
+<h3>Chaos Control</h3>
+
+<label>
+
+Failure Rate
+
+</label>
+
+<input
+
+id="failureRate"
+
+type="range"
+
+min="0"
+
+max="1"
+
+step="0.05"
+
+value="0.30">
+
+<p id="failureValue">
+
+30%
+
+</p>
+
+<label>
+
+Minimum Latency (sec)
+
+</label>
+
+<input
+
+id="minLatency"
+
+type="number"
+
+step="0.1"
+
+value="0.2">
+
+<label>
+
+Maximum Latency (sec)
+
+</label>
+
+<input
+
+id="maxLatency"
+
+type="number"
+
+step="0.1"
+
+value="1.5">
+
+<label>
+
+Retry Attempts
+
+</label>
+
+<input
+
+id="retryAttempts"
+
+type="number"
+
+min="1"
+
+max="10"
+
+value="3">
+
+<label>
+
+Rate Limit
+
+</label>
+
+<input
+
+id="rateLimit"
+
+type="number"
+
+value="5">
+
+<button id="applyChaos">
+
+⚡ APPLY SETTINGS
+
+</button>
+
+</div>
+
+</section>
+
+</main>
+
+</div>
+
+<script src="/static/js/dashboard.js"></script>
 
 </body>
+
 </html>

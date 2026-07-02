@@ -1,150 +1,267 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Body
 from fastapi.responses import FileResponse
-import random
-import time
-import json
-from datetime import datetime
+from fastapi.staticfiles import StaticFiles
+
 import os
+import json
+import time
+
+from app.services.logger import log_request
+from app.services.metrics import metrics
+from app.services.chaos_engine import chaos
+from app.services.chaos_config import chaos_config
+from app.services.rate_limiter import rate_limiter
 
 app = FastAPI()
 
-# ------------------ CONFIG ------------------
-FAILURE_RATE = 0.3
-DELAY_RANGE = (0.2, 1.5)
-RATE_LIMIT = 5
-
-# ------------------ GLOBALS ------------------
-request_count = 0
-failure_count = 0
-user_requests = {}
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 LOG_FILE = os.path.join(BASE_DIR, "data", "logs.json")
 
-# Ensure data folder exists
-os.makedirs(os.path.join(BASE_DIR, "data"), exist_ok=True)
+os.makedirs(os.path.dirname(LOG_FILE), exist_ok=True)
 
-# ------------------ RETRY LOGIC ------------------
-def retry(func, retries=3, base_delay=0.5):
-    for attempt in range(retries):
-        try:
-            return func()
-        except Exception:
-            if attempt == retries - 1:
-                raise
-            # 🔥 Exponential backoff
-            delay = base_delay * (2 ** attempt)
-            time.sleep(delay)
 
-# ------------------ LOGGER ------------------
-def log_request(endpoint, data):
-    log_entry = {
-        "timestamp": str(datetime.now()),
-        "endpoint": endpoint,
-        "data": data
-    }
+# ============================================================
+# Startup
+# ============================================================
 
-    try:
-        with open(LOG_FILE, "r") as f:
-            logs = json.load(f)
-    except:
-        logs = []
+@app.on_event("startup")
+def startup():
 
-    logs.append(log_entry)
+    if not os.path.exists(LOG_FILE):
 
-    with open(LOG_FILE, "w") as f:
-        json.dump(logs, f, indent=2)
+        with open(LOG_FILE, "w") as f:
+            json.dump([], f)
 
-# ------------------ MAIN ENDPOINT ------------------
+
+# ============================================================
+# DATA ENDPOINT
+# ============================================================
+
 @app.get("/data")
 def get_data(request: Request):
-    global request_count, failure_count
 
-    request_count += 1
-    start_time = time.time()
+    start = time.time()
 
     client_ip = request.client.host
 
-    # Rate limiting
-    user_requests[client_ip] = user_requests.get(client_ip, 0) + 1
-    if user_requests[client_ip] > RATE_LIMIT:
-        response_time = time.time() - start_time
-        error = {"error": "Rate limit exceeded"}
+    # ---------------- Rate Limiting ----------------
 
-        log_request("/data", {
-            "response": error,
-            "response_time": response_time
-        })
+    if not rate_limiter.allow_request(
+        client_ip,
+        chaos_config.rate_limit
+    ):
 
-        return error
+        latency = time.time() - start
 
-    # Simulated latency
-    delay = random.uniform(*DELAY_RANGE)
-    time.sleep(delay)
+        response = {
+            "error": "Rate limit exceeded"
+        }
 
-    # Simulated failure
+        metrics.record_rate_limit()
+
+        log_request(
+            endpoint="/data",
+            client_ip=client_ip,
+            status="RATE_LIMITED",
+            latency=latency,
+            response=response,
+            attempts=1
+        )
+
+        return response
+
+    # ---------------- Latency ----------------
+
+    chaos.inject_latency()
+
+    # ---------------- Risky Operation ----------------
+
     def risky_operation():
-        if random.random() < FAILURE_RATE:
-            raise Exception("Simulated API failure")
-        return {"message": "Success"}
+
+        if chaos.should_fail():
+            raise Exception("Simulated Failure")
+
+        return {
+            "message": "Success"
+        }
+
+    # ---------------- Retry ----------------
 
     try:
-        result = retry(risky_operation)
-        response_time = time.time() - start_time
 
-        log_request("/data", {
-            "response": result,
-            "response_time": response_time
-        })
+        result, attempts = chaos.retry(
+            risky_operation
+        )
+
+        latency = time.time() - start
+
+        metrics.record_success(
+            latency,
+            attempts
+        )
+
+        log_request(
+            endpoint="/data",
+            client_ip=client_ip,
+            status="SUCCESS",
+            latency=latency,
+            response=result,
+            attempts=attempts
+        )
 
         return result
 
     except Exception:
-        failure_count += 1
-        response_time = time.time() - start_time
 
-        error = {"error": "Failed after retries"}
+        latency = time.time() - start
 
-        log_request("/data", {
-            "response": error,
-            "response_time": response_time
-        })
+        response = {
+            "error": "Failed after retries"
+        }
 
-        return error
+        metrics.record_failure(
+            latency,
+            chaos_config.retry_attempts
+        )
 
-# ------------------ METRICS ------------------
+        log_request(
+            endpoint="/data",
+            client_ip=client_ip,
+            status="FAILED",
+            latency=latency,
+            response=response,
+            attempts=chaos_config.retry_attempts
+        )
+
+        return response
+
+
+# ============================================================
+# Metrics
+# ============================================================
+
 @app.get("/metrics")
-def metrics():
+def get_metrics():
+
     return {
-        "total_requests": request_count,
-        "failures": failure_count,
-        "success_rate": round((request_count - failure_count) / request_count, 2) if request_count else 0,
-        "rate_limit": RATE_LIMIT,
-        "failure_rate": FAILURE_RATE,
-        "latency_range": DELAY_RANGE
+
+        **metrics.to_dict(),
+
+        "failure_rate_setting":
+            chaos_config.failure_rate,
+
+        "rate_limit":
+            chaos_config.rate_limit,
+
+        "latency_range": [
+
+            chaos_config.min_latency,
+
+            chaos_config.max_latency
+
+        ],
+
+        "retry_limit":
+            chaos_config.retry_attempts
     }
 
-# ------------------ REPLAY ------------------
+
+# ============================================================
+# Replay
+# ============================================================
+
 @app.get("/replay")
 def replay():
+
     try:
+
         with open(LOG_FILE, "r") as f:
             logs = json.load(f)
-    except:
-        return {"error": "No logs found"}
+
+    except Exception:
+
+        logs = []
 
     return {
+
         "total_logs": len(logs),
-        "recent_logs": logs[-5:]
+
+        "recent_logs": logs[-10:]
     }
 
-# ------------------ DASHBOARD ------------------
+
+# ============================================================
+# Dashboard API
+# ============================================================
+
+@app.get("/dashboard-data")
+def dashboard_data():
+
+    return {
+
+        "metrics": metrics.to_dict(),
+
+        "recent_logs": replay()["recent_logs"]
+
+    }
+
+
+# ============================================================
+# Chaos Config
+# ============================================================
+
+@app.get("/chaos/current")
+def current_chaos():
+
+    return chaos_config.to_dict()
+
+
+@app.post("/chaos/update")
+def update_chaos(settings: dict = Body(...)):
+
+    chaos_config.update(settings)
+
+    return {
+
+        "message": "Chaos updated.",
+
+        "config": chaos_config.to_dict()
+
+    }
+
+# ============================================================
+# Reset Simulation
+# ==========================================================
+
+# ============================================================
+# Dashboard
+# ============================================================
+
 @app.get("/")
 @app.get("/dashboard")
 def dashboard():
-    file_path = os.path.join(os.getcwd(), "templates", "dashboard.html")
 
-    if not os.path.exists(file_path):
-        return {"error": f"File not found: {file_path}"}
+    return FileResponse(
+        os.path.join(
+            "templates",
+            "dashboard.html"
+        )
+    )
+@app.post("/reset")
+def reset():
 
-    return FileResponse(file_path)
+    metrics.reset()
+
+    rate_limiter.clients.clear()
+
+    with open(LOG_FILE,"w") as f:
+
+        json.dump([],f)
+
+    return {
+
+        "message":"Simulator reset."
+
+    }
