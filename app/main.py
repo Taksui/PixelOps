@@ -1,6 +1,8 @@
 from fastapi import FastAPI, Request, Body
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
+from app.services.export_service import generate_pdf
+from app.services.replay_service import replay
 
 import os
 import json
@@ -46,7 +48,12 @@ def get_data(request: Request):
 
     client_ip = request.client.host
 
-    # ---------------- Rate Limiting ----------------
+    # Session ID at the moment request started
+    request_session = metrics.session_id
+
+    # --------------------------------------------------------
+    # Rate Limiting
+    # --------------------------------------------------------
 
     if not rate_limiter.allow_request(
         client_ip,
@@ -59,24 +66,31 @@ def get_data(request: Request):
             "error": "Rate limit exceeded"
         }
 
-        metrics.record_rate_limit()
+        # Ignore stale requests after reset
+        if request_session == metrics.session_id:
 
-        log_request(
-            endpoint="/data",
-            client_ip=client_ip,
-            status="RATE_LIMITED",
-            latency=latency,
-            response=response,
-            attempts=1
-        )
+            metrics.record_rate_limit()
+
+            log_request(
+                endpoint="/data",
+                client_ip=client_ip,
+                status="RATE_LIMITED",
+                latency=latency,
+                response=response,
+                attempts=1
+            )
 
         return response
 
-    # ---------------- Latency ----------------
+    # --------------------------------------------------------
+    # Latency
+    # --------------------------------------------------------
 
     chaos.inject_latency()
 
-    # ---------------- Risky Operation ----------------
+    # --------------------------------------------------------
+    # Risky Operation
+    # --------------------------------------------------------
 
     def risky_operation():
 
@@ -87,7 +101,9 @@ def get_data(request: Request):
             "message": "Success"
         }
 
-    # ---------------- Retry ----------------
+    # --------------------------------------------------------
+    # Retry
+    # --------------------------------------------------------
 
     try:
 
@@ -97,19 +113,22 @@ def get_data(request: Request):
 
         latency = time.time() - start
 
-        metrics.record_success(
-            latency,
-            attempts
-        )
+        # Ignore stale requests after reset
+        if request_session == metrics.session_id:
 
-        log_request(
-            endpoint="/data",
-            client_ip=client_ip,
-            status="SUCCESS",
-            latency=latency,
-            response=result,
-            attempts=attempts
-        )
+            metrics.record_success(
+                latency,
+                attempts
+            )
+
+            log_request(
+                endpoint="/data",
+                client_ip=client_ip,
+                status="SUCCESS",
+                latency=latency,
+                response=result,
+                attempts=attempts
+            )
 
         return result
 
@@ -121,19 +140,22 @@ def get_data(request: Request):
             "error": "Failed after retries"
         }
 
-        metrics.record_failure(
-            latency,
-            chaos_config.retry_attempts
-        )
+        # Ignore stale requests after reset
+        if request_session == metrics.session_id:
 
-        log_request(
-            endpoint="/data",
-            client_ip=client_ip,
-            status="FAILED",
-            latency=latency,
-            response=response,
-            attempts=chaos_config.retry_attempts
-        )
+            metrics.record_failure(
+                latency,
+                chaos_config.retry_attempts
+            )
+
+            log_request(
+                endpoint="/data",
+                client_ip=client_ip,
+                status="FAILED",
+                latency=latency,
+                response=response,
+                attempts=chaos_config.retry_attempts
+            )
 
         return response
 
@@ -173,7 +195,7 @@ def get_metrics():
 # ============================================================
 
 @app.get("/replay")
-def replay():
+def replay_logs():
 
     try:
 
@@ -203,13 +225,13 @@ def dashboard_data():
 
         "metrics": metrics.to_dict(),
 
-        "recent_logs": replay()["recent_logs"]
+        "recent_logs": replay_logs()["recent_logs"]
 
     }
 
 
 # ============================================================
-# Chaos Config
+# Chaos Configuration
 # ============================================================
 
 @app.get("/chaos/current")
@@ -231,9 +253,72 @@ def update_chaos(settings: dict = Body(...)):
 
     }
 
+
 # ============================================================
 # Reset Simulation
-# ==========================================================
+# ============================================================
+
+@app.post("/reset")
+def reset():
+
+    metrics.reset()
+
+    rate_limiter.clients.clear()
+
+    with open(LOG_FILE, "w") as f:
+
+        json.dump([], f)
+
+    return {
+
+        "message": "Simulator reset."
+
+    }
+
+# ============================================================
+# Replay API
+# ============================================================
+
+@app.get("/replay/start")
+def replay_start():
+
+    frames = replay.build_frames()
+
+    return {
+
+        "total_frames": len(frames),
+
+        "frames": frames
+
+    }
+
+
+@app.get("/replay/info")
+def replay_info():
+
+    frames = replay.build_frames()
+
+    if not frames:
+
+        return {
+
+            "available": False,
+
+            "total_frames": 0
+
+        }
+
+    return {
+
+        "available": True,
+
+        "total_frames": len(frames),
+
+        "first_frame": frames[0],
+
+        "last_frame": frames[-1]
+
+    }
 
 # ============================================================
 # Dashboard
@@ -249,19 +334,40 @@ def dashboard():
             "dashboard.html"
         )
     )
-@app.post("/reset")
-def reset():
 
-    metrics.reset()
+# ============================================================
+# Export Report
+# ============================================================
 
-    rate_limiter.clients.clear()
+@app.get("/export/report")
+def export_report():
 
-    with open(LOG_FILE,"w") as f:
+    try:
 
-        json.dump([],f)
+        with open(LOG_FILE, "r") as f:
 
-    return {
+            logs = json.load(f)
 
-        "message":"Simulator reset."
+    except Exception:
 
-    }
+        logs = []
+
+    pdf_path, csv_path = generate_pdf(
+
+        metrics.to_dict(),
+
+        chaos_config.to_dict(),
+
+        logs
+
+    )
+
+    return FileResponse(
+
+        path=pdf_path,
+
+        filename=os.path.basename(pdf_path),
+
+        media_type="application/pdf"
+
+    )

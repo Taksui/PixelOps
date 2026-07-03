@@ -1,150 +1,218 @@
-# ⚡ AI API Chaos Simulator
+# PixelOps
+### A Gamified Chaos Engineering & Observability Dashboard built with FastAPI
 
-A FastAPI-based backend system that simulates real-world API behavior including failures, latency, and rate limiting — with built-in observability and request replay.
+PixelOps is an interactive backend resilience simulator that visualizes how production systems behave under failure, latency, retries, and rate limiting.
 
-This project was built to explore how backend systems behave under unpredictable production-like conditions.
-
----
-
-## 🚀 Features
-
-- 🔁 Retry logic for handling transient failures  
-- ❌ Simulated API failures  
-- ⏱️ Random latency injection  
-- 🚫 Rate limiting per client  
-- 📊 Real-time metrics tracking  
-- 🔁 Request logging & replay system  
-- 🖥️ Live dashboard for observability  
+Designed as both a learning platform and a portfolio project, PixelOps combines chaos engineering concepts with a retro pixel-art dashboard to make backend observability intuitive and engaging.
 
 ---
 
-## 🧠 Why this project?
+## Features
 
-Traditional API testing relies on synthetic test cases.
+### Chaos Engineering
 
-This project explores:
-- Capturing real-world behavior
-- Simulating unpredictable conditions
-- Improving backend reliability and observability
-
----
-
-## 📡 API Endpoints
-
-| Endpoint     | Description |
-|--------------|------------|
-| `/data`      | Simulated API with failures, latency, retry logic |
-| `/metrics`   | Returns API performance metrics |
-| `/replay`    | Returns recent logged requests |
-| `/dashboard` | Web UI for live monitoring |
-
----
-
-## 📊 Dashboard
-
-Access the live dashboard at:
-
-
-http://127.0.0.1:8000/dashboard
-
-
-Displays:
-- Total requests
-- Failures
-- Success rate
-- Recent request logs
-
----
-
-## ⚙️ Setup Instructions
-
-### 1. Clone the repo
-
-
-git clone https://github.com/yourusername/api-chaos-simulator.git
-
-cd api-chaos-simulator
-
-
-### 2. Install dependencies
-
-
-pip install fastapi uvicorn jinja2
-
-
-### 3. Create logs file
-
-
-mkdir data
-
-
-Create `data/logs.json`:
-
-
-[]
-
-
-### 4. Run the server
-
-
-uvicorn app.main:app --reload
-
-
----
-
-## 🧪 Example Use
-
-Call the API multiple times:
-
-
-http://127.0.0.1:8000/data
-
-
-Observe:
-- Random failures
-- Delays
+- Configurable failure injection
+- Adjustable network latency
+- Retry mechanism simulation
 - Rate limiting
+- Real-time chaos configuration
 
-Then check:
+### Observability
 
+- Live metrics dashboard
+- Request logging
+- Success / Failure analytics
+- Average latency tracking
+- Status code distribution
+- Recent request history
 
-/metrics
-/dashboard
-/replay
+### Replay Engine
 
+- Replay previous simulation sessions
+- Adjustable replay speed
+- Timeline reconstruction from logs
+- Request-by-request playback
 
----
+### Exporting
 
-## 🧩 Tech Stack
+- PDF simulation reports
+- CSV log export
+- Dashboard screenshots
 
-- FastAPI
-- Python
-- Jinja2 Templates
-- REST APIs
+### DevOps
 
----
-
-## 🧠 Key Concepts Demonstrated
-
-- Backend reliability engineering  
-- API observability  
-- Failure simulation (chaos testing)  
-- Retry strategies  
-- Data logging & replay  
-- Real-time monitoring  
-
----
-
-## 🔮 Future Improvements
-
-- 📈 Graph-based dashboard (Chart.js)
-- 🌐 Cloud deployment (Render / Railway)
-- 🧪 Automated test generation (Keploy-style)
-- 🔐 Authentication & API security layers
+- Docker support
+- GitHub Actions CI
+- Render deployment
+- FastAPI backend
 
 ---
 
-## 💡 Author
+## Tech Stack
 
-Dave Aashisth 
-AI/ML + Backend Systems
+| Category | Technology |
+|----------|------------|
+| Backend | FastAPI |
+| Language | Python 3.12 |
+| Frontend | HTML, CSS, JavaScript |
+| Charts | Chart.js |
+| Deployment | Render |
+| Containerization | Docker |
+| CI/CD | GitHub Actions |
+| Reports | ReportLab |
+
+---
+
+## Dashboard
+
+> Screenshots will be added here.
+
+### Main Dashboard
+
+![Dashboard](docs/dashboard.png)
+
+### Replay Mode
+
+![Replay](docs/replay.png)
+
+### Chaos Controls
+
+![Chaos](docs/chaos.png)
+
+---
+
+## Project Structure
+
+```text
+.
+├── app/
+│   ├── services/
+│   ├── main.py
+│
+├── static/
+│   ├── css/
+│   ├── js/
+│
+├── templates/
+│
+├── reports/
+├── data/
+├── Dockerfile
+├── docker-compose.yml
+└── requirements.txt
+```
+
+---
+
+## Running Locally
+
+Clone the repository
+
+```bash
+git clone https://github.com/Taksui/resilient-fastapi-system.git
+```
+
+Move into the project
+
+```bash
+cd resilient-fastapi-system
+```
+
+Install dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+Run
+
+```bash
+uvicorn app.main:app --reload
+```
+
+Open
+
+```
+http://127.0.0.1:8000
+```
+
+---
+
+## Docker
+
+Build
+
+```bash
+docker compose build
+```
+
+Run
+
+```bash
+docker compose up
+```
+
+---
+
+## Chaos Controls
+
+PixelOps allows dynamic adjustment of:
+
+- Failure Rate
+- Retry Attempts
+- Minimum Latency
+- Maximum Latency
+- Rate Limit
+
+Changes take effect instantly without restarting the application.
+
+---
+
+## Replay System
+
+Every request is persisted into structured logs.
+
+Replay mode reconstructs the simulation timeline, allowing previous traffic sessions to be visualized frame-by-frame.
+
+This demonstrates how system health changes over time under different failure conditions.
+
+---
+
+## CI/CD
+
+GitHub Actions automatically:
+
+- Installs dependencies
+- Validates project imports
+- Builds the Docker image
+
+on every push and pull request.
+
+---
+
+## Future Improvements
+
+- Authentication
+- Multi-user dashboards
+- Prometheus integration
+- Grafana dashboards
+- Kubernetes deployment
+- WebSocket live updates
+- Distributed service simulation
+- AI-powered anomaly detection
+
+---
+
+## Author
+
+**Dave Aashisth T**
+
+Computer Science (AI & ML)
+
+Interested in Backend Engineering, DevOps, Distributed Systems and AI Infrastructure.
+
+---
+
+## License
+
+MIT License

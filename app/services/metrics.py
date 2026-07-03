@@ -6,7 +6,19 @@ import time
 class MetricsManager:
 
     def reset(self):
+
+    # keep increasing session number
+        self.session_id += 1
+
+    # rebuild metrics
+
+        current_session = self.session_id
+
         self.__init__()
+
+    # restore latest session
+
+        self.session_id = current_session
 
     def __init__(self):
 
@@ -61,6 +73,8 @@ class MetricsManager:
         self.health_history = []
 
         self.rps_history = []
+
+        self.session_id = 1
 
         self.chaos_history = []
 
@@ -294,6 +308,8 @@ class MetricsManager:
     def to_dict(self):
 
         return {
+
+            "session_id": self.session_id,
 
             "total_requests": self.request_count,
 

@@ -3,26 +3,55 @@
 
 <head>
 
-<meta charset="UTF-8">
+    <meta charset="UTF-8">
 
-<title>PixelOps</title>
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <title>PixelOps</title>
 
-<link
-href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
-rel="stylesheet">
+    <!-- Pixel Font -->
 
-<link
-rel="stylesheet"
-href="/static/css/dashboard.css">
+    <link rel="preconnect"
+          href="https://fonts.googleapis.com">
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
+        rel="stylesheet">
+
+    <!-- CSS -->
+
+    <link
+        rel="stylesheet"
+        href="/static/css/dashboard.css">
+
+    <!-- ChartJS -->
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
 </head>
 
 <body>
+
+<!-- ================================================= -->
+<!-- Toast Container -->
+<!-- ================================================= -->
+
+<div
+    id="toastContainer"
+    class="toast-container">
+</div>
+
+<!-- ================================================= -->
+<!-- Dashboard -->
+<!-- ================================================= -->
 
 <div class="dashboard">
 
@@ -32,18 +61,23 @@ href="/static/css/dashboard.css">
 
 <aside class="sidebar">
 
-<h1>PIXELOPS</h1>
+    <h1>PIXELOPS</h1>
 
-<nav>
+    <nav>
 
-<button>🏠 Dashboard</button>
-<button>⚔ Metrics</button>
-<button>🔥 Chaos</button>
-<button>📈 Charts</button>
-<button>📜 Logs</button>
-<button>⚙ Settings</button>
+        <button>🏠 Dashboard</button>
 
-</nav>
+        <button>⚔ Metrics</button>
+
+        <button>🔥 Chaos</button>
+
+        <button>📈 Charts</button>
+
+        <button>📜 Logs</button>
+
+        <button>⚙ Settings</button>
+
+    </nav>
 
 </aside>
 
@@ -53,25 +87,33 @@ href="/static/css/dashboard.css">
 
 <main class="content">
 
+<!-- ================================================= -->
+<!-- Header -->
+<!-- ================================================= -->
+
 <header class="header">
 
-<div>
+    <div>
 
-<h2>API CHAOS SIMULATOR</h2>
+        <h2>
 
-<p>
+            API CHAOS SIMULATOR
 
-Observability • Chaos Engineering • Backend Resilience
+        </h2>
 
-</p>
+        <p>
 
-</div>
+            Observability • Chaos Engineering • Backend Resilience
 
-<div class="status">
+        </p>
 
-ONLINE
+    </div>
 
-</div>
+    <div class="status">
+
+        ONLINE
+
+    </div>
 
 </header>
 
@@ -81,317 +123,490 @@ ONLINE
 
 <section class="metrics">
 
-<div class="card">
+    <div class="card">
 
-<h3>⚔ REQUESTS</h3>
+        <h3>⚔ REQUESTS</h3>
 
-<p id="request-count">0</p>
+        <p id="request-count">
 
-</div>
+            0
 
-<div class="card">
+        </p>
 
-<h3>🟢 SUCCESS</h3>
+    </div>
 
-<p id="success-rate">0%</p>
+    <div class="card">
 
-</div>
+        <h3>🟢 SUCCESS</h3>
 
-<div class="card">
+        <p id="success-rate">
 
-<h3>💀 FAILURES</h3>
+            0%
 
-<p id="failure-count">0</p>
+        </p>
 
-</div>
+    </div>
 
-<div class="card">
+    <div class="card">
 
-<h3>⚡ LATENCY</h3>
+        <h3>💀 FAILURES</h3>
 
-<p id="latency">0 ms</p>
+        <p id="failure-count">
 
-</div>
+            0
+
+        </p>
+
+    </div>
+
+    <div class="card">
+
+        <h3>⚡ LATENCY</h3>
+
+        <p id="latency">
+
+            0 ms
+
+        </p>
+
+    </div>
 
 </section>
 
+<section class="panel replay-panel">
+
+    <h3>🎬 Incident Replay</h3>
+
+    <div class="traffic-buttons">
+
+        <button id="replayBtn">
+            ▶ REPLAY
+        </button>
+
+        <button id="pauseReplay">
+            ⏸ PAUSE
+        </button>
+
+        <button id="resumeReplay">
+            ▶ RESUME
+        </button>
+
+        <button id="stopReplay">
+            ■ STOP
+        </button>
+
+    </div>
+
+    <br>
+
+    <label>Replay Speed</label>
+
+    <select id="replaySpeed">
+
+        <option value="1000">0.5x</option>
+
+        <option value="500" selected>1x</option>
+
+        <option value="250">2x</option>
+
+        <option value="100">5x</option>
+
+        <option value="50">10x</option>
+
+    </select>
+
+    <br><br>
+
+    <progress
+        id="replayProgress"
+        value="0"
+        max="100"
+        style="width:100%;">
+    </progress>
+
+</section>
 <!-- ================================================= -->
 <!-- Charts -->
 <!-- ================================================= -->
 
 <section class="charts">
 
-<div class="panel">
+    <!-- Requests/sec -->
 
-<h3>Requests / sec</h3>
+    <div class="panel">
 
-<canvas id="requestChart"></canvas>
+        <h3>
 
-</div>
+            Requests / sec
 
-<div class="panel">
+        </h3>
 
-<h3>Latency</h3>
+        <canvas id="requestChart"></canvas>
 
-<canvas id="latencyChart"></canvas>
+    </div>
 
-</div>
+    <!-- Latency -->
 
-</section>
+    <div class="panel">
 
-<!-- ================================================= -->
-<!-- Traffic Controls -->
-<!-- ================================================= -->
+        <h3>
 
-<section class="controls">
+            Average Latency
 
-<h3>Traffic Generator</h3>
+        </h3>
 
-<div class="traffic-buttons">
+        <canvas id="latencyChart"></canvas>
 
-<button id="sendOne">
+    </div>
 
-Send 1
+    <!-- Status Codes -->
 
-</button>
+    <div class="panel">
 
-<button id="sendTen">
+        <h3>
 
-Send 10
+            Status Codes
 
-</button>
+        </h3>
 
-<button id="sendHundred">
+        <canvas id="statusChart"></canvas>
 
-Send 100
-
-</button>
-
-<button id="chaosMode">
-
-CHAOS x500
-
-</button>
-
-<button id="resetSim">
-
-RESET
-
-</button>
-
-</div>
-
-<hr>
-
-<label>
-
-Traffic Speed
-
-</label>
-
-<input
-
-id="trafficRate"
-
-type="range"
-
-min="1"
-
-max="100"
-
-value="10">
-
-<p id="trafficValue">
-
-10 req/sec
-
-</p>
-
-<div class="traffic-buttons">
-
-<button id="startTraffic">
-
-▶ START LOAD
-
-</button>
-
-<button id="stopTraffic">
-
-■ STOP LOAD
-
-</button>
-
-</div>
-
-<p id="trafficStatus">
-
-🔴 Idle
-
-</p>
+    </div>
 
 </section>
 
 <!-- ================================================= -->
-<!-- Bottom -->
+<!-- Traffic Generator -->
+<!-- ================================================= -->
+
+<section class="panel controls">
+
+    <h3>
+
+        Traffic Generator
+
+    </h3>
+
+    <div class="traffic-buttons">
+
+        <button id="sendOne">
+            Send 1
+        </button>
+
+        <button id="sendTen">
+            Send 10
+        </button>
+
+        <button id="sendHundred">
+            Send 100
+        </button>
+
+        <button id="chaosMode">
+            CHAOS ×500
+        </button>
+
+        <button id="resetSim">
+            RESET
+        </button>
+
+        <button id="screenshotBtn">
+            📸 SCREENSHOT
+        </button>
+        
+        <button id="exportReport">
+            📄 EXPORT
+        </button>
+    </div>
+
+    <hr>
+
+    <label>
+
+        Traffic Speed
+
+    </label>
+
+    <input
+
+        id="trafficRate"
+
+        type="range"
+
+        min="1"
+
+        max="100"
+
+        value="10">
+
+    <p id="trafficValue">
+
+        10 req/sec
+
+    </p>
+
+    <div class="traffic-buttons">
+
+        <button id="startTraffic">
+
+            ▶ START LOAD
+
+        </button>
+
+        <button id="stopTraffic">
+
+            ■ STOP LOAD
+
+        </button>
+
+    </div>
+
+    <p id="trafficStatus">
+
+        🔴 Idle
+
+    </p>
+
+</section>
+<!-- ================================================= -->
+<!-- Bottom Section -->
 <!-- ================================================= -->
 
 <section class="bottom">
 
-<!-- ===================== -->
-<!-- Logs -->
-<!-- ===================== -->
+    <!-- ============================================= -->
+    <!-- System Terminal -->
+    <!-- ============================================= -->
 
-<div class="panel logs">
+    <div class="panel logs">
 
-<h3>System Terminal</h3>
+        <h3>
 
-<div id="logs">
+            System Terminal
 
-Waiting for traffic...
+        </h3>
 
-</div>
+        <div id="logs">
 
-</div>
+            Waiting for traffic...
 
-<!-- ===================== -->
-<!-- Boss -->
-<!-- ===================== -->
+        </div>
 
-<div class="panel">
+    </div>
 
-<h3>Chaos Boss</h3>
+    <!-- ============================================= -->
+    <!-- Chaos Boss -->
+    <!-- ============================================= -->
 
-<div class="dragon">
+    <div class="panel boss-panel">
 
-🐉
+        <h3>
 
-</div>
+            Chaos Boss
 
-<div class="boss-health">
+        </h3>
 
-<div id="boss-hp"></div>
+        <div
 
-</div>
+            id="dragon"
 
-<p id="boss-status">
+            class="dragon">
 
-System Stable
+            🐉
 
-</p>
+        </div>
 
-</div>
+        <div class="boss-health">
 
-<!-- ===================== -->
+            <div id="boss-hp"></div>
+
+        </div>
+
+        <p id="boss-status">
+
+            Sleeping
+
+        </p>
+
+    </div>
+
+    <!-- ============================================= -->
+    <!-- Recent Requests -->
+    <!-- ============================================= -->
+
+    <div class="panel">
+
+        <h3>
+
+            Recent Requests
+
+        </h3>
+
+        <table class="requests-table">
+
+            <thead>
+
+                <tr>
+
+                    <th>
+
+                        Time
+
+                    </th>
+
+                    <th>
+
+                        Endpoint
+
+                    </th>
+
+                    <th>
+
+                        Status
+
+                    </th>
+
+                    <th>
+
+                        Latency
+
+                    </th>
+
+                    <th>
+
+                        Retries
+
+                    </th>
+
+                </tr>
+
+            </thead>
+
+            <tbody id="requestTableBody">
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</section>
+<!-- ================================================= -->
 <!-- Chaos Controls -->
-<!-- ===================== -->
+<!-- ================================================= -->
 
-<div class="panel chaos-panel">
+<section class="panel chaos-panel">
 
-<h3>Chaos Control</h3>
+    <h3>
 
-<label>
+        Chaos Control
 
-Failure Rate
+    </h3>
 
-</label>
+    <label>
 
-<input
+        Failure Rate
 
-id="failureRate"
+    </label>
 
-type="range"
+    <input
 
-min="0"
+        id="failureRate"
 
-max="1"
+        type="range"
 
-step="0.05"
+        min="0"
 
-value="0.30">
+        max="1"
 
-<p id="failureValue">
+        step="0.05"
 
-30%
+        value="0.30">
 
-</p>
+    <p id="failureValue">
 
-<label>
+        30%
 
-Minimum Latency (sec)
+    </p>
 
-</label>
+    <label>
 
-<input
+        Minimum Latency (sec)
 
-id="minLatency"
+    </label>
 
-type="number"
+    <input
 
-step="0.1"
+        id="minLatency"
 
-value="0.2">
+        type="number"
 
-<label>
+        step="0.1"
 
-Maximum Latency (sec)
+        value="0.2">
 
-</label>
+    <label>
 
-<input
+        Maximum Latency (sec)
 
-id="maxLatency"
+    </label>
 
-type="number"
+    <input
 
-step="0.1"
+        id="maxLatency"
 
-value="1.5">
+        type="number"
 
-<label>
+        step="0.1"
 
-Retry Attempts
+        value="1.5">
 
-</label>
+    <label>
 
-<input
+        Retry Attempts
 
-id="retryAttempts"
+    </label>
 
-type="number"
+    <input
 
-min="1"
+        id="retryAttempts"
 
-max="10"
+        type="number"
 
-value="3">
+        min="1"
 
-<label>
+        max="10"
 
-Rate Limit
+        value="3">
 
-</label>
+    <label>
 
-<input
+        Rate Limit
 
-id="rateLimit"
+    </label>
 
-type="number"
+    <input
 
-value="5">
+        id="rateLimit"
 
-<button id="applyChaos">
+        type="number"
 
-⚡ APPLY SETTINGS
+        value="5">
 
-</button>
+    <button id="applyChaos">
 
-</div>
+        ⚡ APPLY SETTINGS
+
+    </button>
 
 </section>
 
 </main>
 
 </div>
+
+<!-- ================================================= -->
+<!-- Dashboard Script -->
+<!-- ================================================= -->
 
 <script src="/static/js/dashboard.js"></script>
 

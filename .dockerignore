@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+.git/
+.vscode/
+
+venv/
+.env
+
+data/*.pdf
+data/*.csv
