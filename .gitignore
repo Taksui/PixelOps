@@ -3,3 +3,15 @@ __pycache__/
 .env
 data/logs.json
 venv/
+
+# Generated reports
+reports/*.pdf
+reports/*.csv
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Virtual environments
+venv/
+.env

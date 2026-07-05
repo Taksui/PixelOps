@@ -217,7 +217,7 @@ PixelOps/
 
 ## Chaos Controls
 
-![Chaos](assets/Chaos Control.png)
+![Chaos](assets/ChaosControl.png)
 
 ---
 
@@ -244,7 +244,7 @@ git clone https://github.com/Taksui/PixelOps.git
 Enter directory
 
 ```bash
-cd resilient-fastapi-system
+cd PixelOps
 ```
 
 Install dependencies
@@ -269,7 +269,9 @@ http://127.0.0.1:8000
 
 # 🐳 Docker
 
+```
 docker compose up --build
+```
 
 ---
 
@@ -318,7 +320,7 @@ This project explores practical backend engineering concepts including
 
 # 👨‍💻 Author
 
-**Dave Aashisth**
+**Dave Aashisth(Taksui)**
 
 Backend Engineering • AI Systems • Distributed Systems
 
