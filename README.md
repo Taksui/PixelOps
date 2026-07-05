@@ -1,118 +1,247 @@
-# PixelOps
-### A Gamified Chaos Engineering & Observability Dashboard built with FastAPI
+# 🚀 PixelOps – Resilient FastAPI Chaos Simulator
 
-PixelOps is an interactive backend resilience simulator that visualizes how production systems behave under failure, latency, retries, and rate limiting.
+> A production-inspired FastAPI system for chaos engineering, observability, resilience testing, and backend monitoring.
 
-Designed as both a learning platform and a portfolio project, PixelOps combines chaos engineering concepts with a retro pixel-art dashboard to make backend observability intuitive and engaging.
+![Python](https://img.shields.io/badge/Python-3.12-blue)
+![FastAPI](https://img.shields.io/badge/FastAPI-Backend-green)
+![Docker](https://img.shields.io/badge/Docker-Containerized-blue)
+![GitHub Actions](https://img.shields.io/badge/CI-GitHub%20Actions-success)
+![Render](https://img.shields.io/badge/Deployment-Render-purple)
+[![Live Demo](https://img.shields.io/badge/🚀-Live%20Demo-success)](https://resilient-fastapi-system.onrender.com/)
+
+---
+<p align="center">
+  <img src="assets/Pixelops-demo.gif" alt="PixelOps Demo">
+</p>
 
 ---
 
-## Features
+## 📌 Overview
 
-### Chaos Engineering
+PixelOps is a resilient backend simulator built with FastAPI that demonstrates concepts commonly used in production backend systems.
 
-- Configurable failure injection
-- Adjustable network latency
-- Retry mechanism simulation
+Instead of being a CRUD application, PixelOps focuses on:
+
+- Chaos Engineering
+- Retry Logic
+- Rate Limiting
+- Failure Injection
+- Live Monitoring
+- Replayable Request History
+- Metrics Collection
+- Containerization
+- CI/CD
+
+The project visualizes how backend services behave under stress while exposing real-time metrics through an interactive dashboard.
+
+---
+
+# 💡 Why PixelOps?
+
+Most backend portfolio projects focus on CRUD APIs.
+
+PixelOps instead simulates real production challenges such as latency spikes, transient failures, retry mechanisms, rate limiting, observability, and replayable incidents, making it a practical demonstration of backend resilience engineering.
+
+---
+
+# ✨ Features
+
+## ⚔ Chaos Engine
+
+Configure backend failures in real time.
+
+- Adjustable failure rate
+- Random latency injection
+- Retry mechanism
 - Rate limiting
-- Real-time chaos configuration
-
-### Observability
-
-- Live metrics dashboard
-- Request logging
-- Success / Failure analytics
-- Average latency tracking
-- Status code distribution
-- Recent request history
-
-### Replay Engine
-
-- Replay previous simulation sessions
-- Adjustable replay speed
-- Timeline reconstruction from logs
-- Request-by-request playback
-
-### Exporting
-
-- PDF simulation reports
-- CSV log export
-- Dashboard screenshots
-
-### DevOps
-
-- Docker support
-- GitHub Actions CI
-- Render deployment
-- FastAPI backend
+- Live configuration updates
 
 ---
 
-## Tech Stack
+## 📊 Live Dashboard
 
-| Category | Technology |
-|----------|------------|
-| Backend | FastAPI |
-| Language | Python 3.12 |
-| Frontend | HTML, CSS, JavaScript |
-| Charts | Chart.js |
-| Deployment | Render |
-| Containerization | Docker |
-| CI/CD | GitHub Actions |
-| Reports | ReportLab |
+Interactive monitoring dashboard displaying
+
+- Request count
+- Success rate
+- Failure count
+- Average latency
+- Status code distribution
+- Live request table
+- Chaos Boss health meter
+
+---
+
+## 📈 Metrics Collection
+
+Tracks
+
+- Total requests
+- Successful requests
+- Failed requests
+- Success %
+- Average latency
+- Retry attempts
+- HTTP status distribution
+
+---
+
+## 🔁 Replay Mode
+
+Replay historical API sessions exactly as they occurred, rebuilding dashboard metrics frame-by-frame from stored logs.
+
+Features include
+
+- Timeline playback
+- Adjustable replay speed
+- Frame-by-frame metrics reconstruction
+- Historical dashboard recreation
+
+---
+
+## 📜 Logging
+
+Every request is logged with
+
+- Timestamp
+- Endpoint
+- Client IP
+- Status
+- Latency
+- Retry count
+- Response payload
+
+Logs are stored locally as JSON.
+
+---
+
+## 📄 Report Export
+
+Generate reports directly from the dashboard.
+
+Includes
+
+- PDF report
+- CSV log export
+
+---
+
+## 🐳 Docker Support
+
+Containerized using Docker.
+
+Run locally with
+
+```bash
+docker compose build
+docker compose up
+```
+
+---
+
+## ⚙ CI/CD
+
+GitHub Actions automatically
+
+- Installs dependencies
+- Builds project
+- Runs automated tests
+- Validates Docker build
+
+---
+
+# 🏗 System Architecture
+
+```
+             Dashboard (HTML/CSS/JS)
+                     │
+                     ▼
+             FastAPI Application
+                     │
+     ┌───────────────┼────────────────┐
+     │               │                │
+     ▼               ▼                ▼
+ Chaos Engine     Metrics        Replay Service
+     │               │                │
+     └───────────────┼────────────────┘
+                     ▼
+              Logger Service
+                     │
+                     ▼
+                logs.json
+```
+
+---
+
+# 🧩 Project Structure
+
+```
+PixelOps/
+
+├── app/
+│   ├── services/
+│   │      chaos_engine.py
+│   │      chaos_config.py
+│   │      export_service.py
+│   │      logger.py
+│   │      metrics.py
+│   │      rate_limiter.py
+│   │      replay_service.py
+│   └── main.py
+│
+├── static/
+│   ├── css/
+│   └── js/
+│
+├── templates/
+│      dashboard.html
+│
+├── data/
+│      logs.json
+│
+├── reports/
+│
+├── Dockerfile
+├── docker-compose.yml
+├── requirements.txt
+└── README.md
+```
 
 ---
 
 ## Dashboard
 
-> Screenshots will be added here.
-
-### Main Dashboard
-
-![Dashboard](docs/dashboard.png)
-
-### Replay Mode
-
-![Replay](docs/replay.png)
-
-### Chaos Controls
-
-![Chaos](docs/chaos.png)
+![Dashboard](assets/dashboard.png)
 
 ---
 
-## Project Structure
+## Chaos Controls
 
-```text
-.
-├── app/
-│   ├── services/
-│   ├── main.py
-│
-├── static/
-│   ├── css/
-│   ├── js/
-│
-├── templates/
-│
-├── reports/
-├── data/
-├── Dockerfile
-├── docker-compose.yml
-└── requirements.txt
-```
+![Chaos](assets/Chaos Control.png)
 
 ---
 
-## Running Locally
+## Traffic Generator
 
-Clone the repository
+![Traffic](assets/TrafficGenerator.png)
+
+---
+
+## System Architecture
+
+![Architecture](assets/architecture.png) 
+
+---
+
+# 🚀 Running Locally
+
+Clone repository
 
 ```bash
-git clone https://github.com/Taksui/resilient-fastapi-system.git
+git clone https://github.com/Taksui/PixelOps.git
 ```
 
-Move into the project
+Enter directory
 
 ```bash
 cd resilient-fastapi-system
@@ -124,7 +253,7 @@ Install dependencies
 pip install -r requirements.txt
 ```
 
-Run
+Run server
 
 ```bash
 uvicorn app.main:app --reload
@@ -138,81 +267,61 @@ http://127.0.0.1:8000
 
 ---
 
-## Docker
+# 🐳 Docker
 
-Build
-
-```bash
-docker compose build
-```
-
-Run
-
-```bash
-docker compose up
-```
+docker compose up --build
 
 ---
 
-## Chaos Controls
+# 📈 Technologies Used
 
-PixelOps allows dynamic adjustment of:
-
-- Failure Rate
-- Retry Attempts
-- Minimum Latency
-- Maximum Latency
-- Rate Limit
-
-Changes take effect instantly without restarting the application.
-
----
-
-## Replay System
-
-Every request is persisted into structured logs.
-
-Replay mode reconstructs the simulation timeline, allowing previous traffic sessions to be visualized frame-by-frame.
-
-This demonstrates how system health changes over time under different failure conditions.
+- Python
+- FastAPI
+- JavaScript
+- HTML5
+- CSS3
+- Chart.js
+- Docker
+- GitHub Actions
+- Render
 
 ---
 
-## CI/CD
+# 🎯 Learning Objectives
 
-GitHub Actions automatically:
+This project explores practical backend engineering concepts including
 
-- Installs dependencies
-- Validates project imports
-- Builds the Docker image
-
-on every push and pull request.
+- Resilient API design
+- Chaos engineering
+- Retry strategies
+- Rate limiting
+- Observability
+- Monitoring
+- Containerization
+- CI/CD workflows
+- Backend logging
+- Interactive dashboards
 
 ---
 
-## Future Improvements
+# 🔮 Future Improvements
 
-- Authentication
-- Multi-user dashboards
-- Prometheus integration
-- Grafana dashboards
 - Kubernetes deployment
+- Prometheus metrics
+- Grafana dashboards
+- Distributed tracing
 - WebSocket live updates
-- Distributed service simulation
-- AI-powered anomaly detection
+- Authentication
+- PostgreSQL log storage
 
 ---
 
-## Author
+# 👨‍💻 Author
 
-**Dave Aashisth T**
+**Dave Aashisth**
 
-Computer Science (AI & ML)
+Backend Engineering • AI Systems • Distributed Systems
 
-Interested in Backend Engineering, DevOps, Distributed Systems and AI Infrastructure.
+Open to Software Engineering and Backend Development opportunities.
 
 ---
-
-## License
-
-MIT License
