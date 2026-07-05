@@ -11,7 +11,7 @@
 
 ---
 <p align="center">
-  <img src="assets/Pixelops.gif" alt="PixelOps Demo">
+  <img src="assets/Pixelops-demo.gif" alt="PixelOps Demo">
 </p>
 
 ---
@@ -148,30 +148,6 @@ GitHub Actions automatically
 - Runs automated tests
 - Validates Docker build
 
----
-
-# 🏗 System Architecture
-
-```
-             Dashboard (HTML/CSS/JS)
-                     │
-                     ▼
-             FastAPI Application
-                     │
-     ┌───────────────┼────────────────┐
-     │               │                │
-     ▼               ▼                ▼
- Chaos Engine     Metrics        Replay Service
-     │               │                │
-     └───────────────┼────────────────┘
-                     ▼
-              Logger Service
-                     │
-                     ▼
-                logs.json
-```
-
----
 
 # 🧩 Project Structure
 
@@ -209,6 +185,35 @@ PixelOps/
 
 ---
 
+# 🏗 Architecture Diagram
+
+```
+             Dashboard (HTML/CSS/JS)
+                     │
+                     ▼
+             FastAPI Application
+                     │
+     ┌───────────────┼────────────────┐
+     │               │                │
+     ▼               ▼                ▼
+ Chaos Engine     Metrics        Replay Service
+     │               │                │
+     └───────────────┼────────────────┘
+                     ▼
+              Logger Service
+                     │
+                     ▼
+                logs.json
+```
+
+---
+
+## System Architecture
+
+![Architecture](assets/architecture.png) 
+
+---
+
 ## Dashboard
 
 ![Dashboard](assets/dashboard.png)
@@ -227,9 +232,7 @@ PixelOps/
 
 ---
 
-## System Architecture
 
-![Architecture](assets/architecture.png) 
 
 ---
 
