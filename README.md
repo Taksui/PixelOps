@@ -11,7 +11,7 @@
 
 ---
 <p align="center">
-  <img src="assets/Pixelops_gif.mp4" alt="PixelOps Demo">
+  <img src="assets/Pixelops.gif" alt="PixelOps Demo">
 </p>
 
 ---
