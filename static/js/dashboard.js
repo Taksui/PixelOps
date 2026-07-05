@@ -1499,3 +1499,53 @@ window.onload=()=>{
     );
 
 };
+
+console.log("Reached sidebar code");
+
+// ============================================
+// Sidebar Navigation
+// ============================================
+
+function scrollToSection(id){
+
+    document.getElementById(id).scrollIntoView({
+
+        behavior: "smooth",
+
+        block: "start"
+
+    });
+
+}
+
+$("navDashboard").onclick = () => scrollToSection("dashboard");
+
+$("navMetrics").onclick = () => scrollToSection("metrics");
+
+$("navChaos").onclick = () => scrollToSection("chaos");
+
+$("navCharts").onclick = () => scrollToSection("charts");
+
+$("navLogs").onclick = () => scrollToSection("logsSection");
+
+$("navSettings").onclick = function(){
+
+    alert(
+
+`PixelOps v1.0
+
+Built by Dave Aashisth
+
+Tech Stack
+
+• FastAPI
+• Docker
+• Chart.js
+• GitHub Actions
+• Render
+
+Production-inspired Chaos Engineering Simulator`
+
+    );
+
+};
