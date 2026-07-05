@@ -11,7 +11,7 @@
 
 ---
 <p align="center">
-  <img src="assets/Pixelops-demo.gif" alt="PixelOps Demo">
+  <img src="assets/Pixelops_gif.mp4" alt="PixelOps Demo">
 </p>
 
 ---
@@ -269,8 +269,9 @@ http://127.0.0.1:8000
 
 # 🐳 Docker
 
-```
+```bash
 docker compose up --build
+
 ```
 
 ---
